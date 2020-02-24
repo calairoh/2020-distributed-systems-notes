@@ -1,0 +1,268 @@
+\subsection{Run-time architectures}
+
+    \subsubsection{Client-Server}
+    It's one of the most common architecture today.
+
+    The main caracteristic is that the components have different roles, in other words: 
+    \begin{itemize}
+        \item Servers provide a set of services through a defined API, and most important, those API are \textbf{passive}, which meand that the server is waiting for client calls.
+        \item Users access those services through clients.
+        \item The communication is message based.
+    \end{itemize}
+
+    The typical architecture is the \textbf{two tiers architecture}, which is basically
+    composed by a server and a client and, based on the component load, we can distingue between
+    \textit{thick-client} and \textit{thin-client}.\\
+    Moreover, in this architecture the server can also operate like a client, 
+    for example calling another server to get some information 
+    \textit{(e.g. calling a DB server in order to get some kind of data)}. 
+    In this case we speak about \textbf{three-tiered client-server architecture}. 
+    Obviously this concept can be extended to \textit{n} tiers, so we can have \textbf{multi-tiered client-server applications}.
+    Those applications can be classified looking at the way such services are assigned to the different tiers.
+
+    \subsubsection{Service Oriented}
+    In this architecture, the service became the most important thing.\\
+    We basically 4 concepts:
+    \begin{itemize}
+        \item Services: represent loosely coupled units of functionality
+        \item Service providers: entities which exported the services
+        \item Brokers: entities which hold the description of available 
+                services to be searched by interested consumers and reduce the
+                dependency between client and server
+        \item Service consumers: entities which bind and invoke the services
+                they need and exposed by the Brokers
+    \end{itemize}
+    In the end, the \textit{Orchestration} is the process of invoking a set
+    of services in an ad-hoc workflow to satisfy a specific goal.\\
+    In the practice, there are many ways to implement this architecture.
+    The most commons are:
+    \begin{itemize}
+        \item OGSI (Open Grid Services Infrastructure)
+        \item JXTA
+        \item Jini
+        \item Web Services
+    \end{itemize}
+    
+    \paragraph{Web Services}
+    \subparagraph{Def}
+    A software system designed to support interoperable machine-to-machine
+    interaction over a network.\\
+    Related on the Service Oriented Architecture, we can identify
+    the Web Services as one of the most important application.\\
+    \textbf{Note that:} it exposes an interface that is described by \textit{WSDL},
+    which stands for \textit{Web Service Description Language}, and it
+    contains the set of operations exported by the web service.\\
+    Web service \textbf{operations} are invoked through \textit{SOAP}
+    \subparagraph{SOAP}
+    A protocol, based on \textit{XML}, which defines the way messages
+    (operation calls) are actually exchanged. It's usually based on \textit{HTTP}
+    but other transport protocols can be used.
+    \subparagraph{UDDI}
+    It stands for \textit{Universal Description Discovery And Integration}
+    describes the rules that allows web services to be exported and searched
+    through a \textit{registry}
+
+    \paragraph{REST}
+    \subparagraph{Def}
+    \textit{REST} stands for \textit{REpresentational State Transfer}\\
+    \\
+    This style is very important for two main reasons:
+    \begin{itemize}
+        \item It's a nice way to describe the web
+        \item It's a set of principles that defin how Web standards
+                are supposed to be used
+    \end{itemize}
+    The REST style is an optimal solution in order to have:
+    \begin{itemize}
+        \item Scalability of component interactions
+        \item Generality of interfaces
+        \item Indipendent deployment of components
+        \item Intermediary components to reduce latency, enforce
+            security and encapsulate legacy systems
+    \end{itemize}
+    The main contraints are:
+    \begin{itemize}
+        \item Interactions are client-server
+        \item Interactions are stateless, otherwise:
+        \begin{itemize}
+                \item If it's stateful there is a big dependency between client
+                        and server
+                \item A client can't call another server, because it needs that
+                        specific server, because it has the interactions story 
+        \end{itemize}
+            Moreover, with the stateless contraint:
+        \begin{itemize}
+            \item The system becames very scalable
+            \item I can introduce a caching service, in order to improve performance
+        \end{itemize} 
+        \item The data within a response to a request must be implicitly or explicitly
+            labeled as cacheable or non-cacheable
+        \item Each component cannot "see" beyond the immediate layer with which they
+            are interacting, so we can say that the \textbf{REST is layered}.
+        \item Components expose a uniform interface
+        \item Clients must support \textit{code-on-demand}, but note that this is an 
+            \textsl{optional constraint}
+    \end{itemize}
+    
+    \subparagraph{REST: Uniform interface contraints}
+    The uniform interface exposed by components must satisfy four contraints:
+    \begin{itemize}
+        \item \textbf{Identification of resources:} each resource must have an Identification
+            (usually an \textit{URI}) and everything that have an ID is a valice resource 
+            (including a service)
+        \item \textbf{Manipulation of resources through representations}
+        \begin{itemize}
+            \item \textit{REST} components communicate by transferring a representation of a
+                resource in a format matching one of an evolving set of standards data types,
+                selected dinamically based on the capabilities or desires of the recipient and
+                the nature of the resource
+            \item Whether the representation is in the same format as the raw
+                resource, or is derived from the resource, remains hidden behind the interface
+            \item A representation consists of data and metadata describing the data
+        \end{itemize}
+        \item \textbf{Self-descriprive messages}
+        \begin{itemize}
+            \item Control data defines the purpose of a message between components, such as the 
+                action being requested or the meaning of a response
+            \item It is also used to parameterize requests and override the default behavior of
+                some connecting elements
+        \end{itemize}
+        \item \textbf{Hypermedia as the engine of application site}
+            Clients move from a state to another each time process a new representaiton, usually
+            linked to other representation through hypermedia links
+    \end{itemize}
+
+    \subsubsection{Peer-to-peer}
+    In a \textit{peer-to-peer} applications all components play the same role, so there is no 
+    distinction between clients and servers.\\
+    But, why the \textit{peer-to-peer} model is born? The main reasons are:
+    \begin{itemize}
+        \item Client-server does not scale well, due to centralization of service provision and management
+        \item The server is also a single point of failure
+        \item P2P leverages off the increased availability of broadband connectivity and processing
+            power at the end-host to overcome such limitations
+    \end{itemize}
+    Moreover, \textit{P2P} promotes the sharing of resources and services through direct exchange between peers.\\
+    Resources can be:
+    \begin{itemize}
+        \item Processing cycles
+        \item Collaborative work (\textit{i.e. Skype})
+        \item Storage space
+        \item Network bandwidth (\textit{i.e. ad hoc networking, internet})
+        \item Data
+    \end{itemize}
+
+    \subsubsection{Object-Oriented}
+    The distributed components encapsulate a data structure providing an API to access
+    and modify it
+    \begin{itemize}
+        \item Each component is responsible for ensuring the integrity of the data structure
+            it encapsulate
+        \item The internal organization of such data structure id hidden to the other components
+            (who may access it only through the API mentioned above)
+    \end{itemize}
+    Moreover, components interact through \textit{RPC} and we can consider it as a \textit{P2P} model,
+    but it's often used to implement client-server application.\\
+    This architecture has many advantages:
+    \begin{itemize}
+        \item Information hiding hides complexity in accessing/managing the shared data
+        \item Encapsulation plus information hiding reduce the management complexity, in fact we
+            can provide some load-balancing tecniques in order to share the server load.
+        \item Objects are easy to reuse among different applications
+        \item Legacy components can be wrapped within objects and easily integrated in new applications
+    \end{itemize}
+
+    \subsubsection{Data-Centered}
+    The main principle is that components communicate through a common (usually passive) repository.
+    On the repository, data can be added to the repository or taken from it.\\
+    Access to the repository is usually synchronized and the communication with the 
+    repository is usually through RPC.
+
+    \paragraph{Linda}
+    \textit{Linda} is one of the possible example of Data-Centered model.\\
+    The main characteristics are:
+    \begin{itemize}
+        \item Communication is persistent, implicit, content-based, generative
+        \item High degree of decoupling
+        \item Data is contained i ordered sequences of typed fields (\textit{tuples})
+        \item Tuples are stored in a persistent and global shared space (\textit{tuple space})
+    \end{itemize}
+
+    \paragraph{Architectural issues}
+    \subparagraph{Scalability}
+    The main problem of the data-centered architectures is they're cannot be easily scaled
+    on a wide-area, mainly because it's tricky to store and replicate tuples efficiently in 
+    such a wide area. Another problem is the routing. For the same reasons routing queries
+    efficiently in very large system is not a simple problem to approach.
+    \subparagraph{Proactive}
+    The model is proactive in the sense that processes explicity request a tuple query,
+    and so there's is no way to be notified where an info is available. In order to have a
+    reactive and asynchronous behavior must implemented with an extra process and a
+    blocking operation.
+    \subparagraph{Bottleneck}
+    In general the repository is a bottleneck for the performance
+
+    In the end, in the commercial implementations, only client access to a server holding the
+    tuple space, and, in order to add reactivity to the system, in general we add reactive
+    primitives, such as \textit{notify}.
+
+    \subsubsection{Event-Based}
+    The main idea is that components collaborate by exchanging information about occurrent \textit{events}.
+    In particual we distingush among:
+    \begin{itemize}
+        \item \textit{publishers}: components which publish notifications about the events they observe
+        \item \textit{subscribers}: components which subscribe to events they are interested to be notified about
+    \end{itemize}
+    In particular, the communication is:
+    \begin{itemize}
+        \item Purely message based
+        \item Asynchronous
+        \item Multicast
+        \item Implicit
+        \item Anonymous
+    \end{itemize}
+
+    \subsubsection{Mobile code}
+    It's based on the ability of relocating the components of a distributed application at run-time.
+    In same case you can also move the entire state and not only the code.
+    We can have multiple paradigms:
+    \begin{itemize}
+        \item Client-Server
+        \item Remote evalutation
+        \item Code on demand
+        \item Mobile agent
+    \end{itemize}
+    The mobility can be divided in two types:
+    \begin{itemize}
+        \item \textit{Strong mobility} is the ability of a system to allow migreation of both code and
+            execution state
+        \item \textit{Weak mobility} is the ability of a system to allow code movement across different
+            computational enviroments (\textit{e.g. JavaScript})
+    \end{itemize}
+    This solution provides a great flexibility for add, upgrade and enrich services at run-time, but, 
+    at the same time, securing mobile code applications is tricky.
+    
+    \paragraph{CREST}
+    \textit{CREST} stands for \textit{Computational REST} and it joins together the concepts of \textit{REST}
+    with mobile code, so, instead of \textit{representations}, interacting parties exchanges \textit{computations}.
+
+    \subsection{The interaction model}
+    \subsubsection{Distributed algorithms}
+    A traditional algorithm is defined as a sequence of steps, in which the process
+    execution speed is the only variable that influence performance. In a distributed
+    system we have also the concept of the distributed algorithm, which is difference 
+    from the traditional one, in the sense that the performance is also influenced by 
+    the transmission of messages between them. In general the behavior of a distributed
+    algorithm is influenced by:
+    \begin{itemize}
+        \item The rate at which each process proceeds
+        \item The performance of the communication channels
+        \item The different clock drift rates
+    \end{itemize}
+    We can distinguish between:
+    \begin{itemize}
+        Synchronous DS: there are lower and upper bounds
+        Asynchronous DS: there are no bounds
+    \end{itemize}
+    \subparagraph{Caution}
+    Any solution that is valid for an asynchronous DS is also valid for a synchronous one

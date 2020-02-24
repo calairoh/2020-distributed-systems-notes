@@ -1,17 +1,15 @@
 \subsection{Run-time architectures}
 
     \subsubsection{Client-Server}
-    It's one of the most common architecture today.
-
-    The main caracteristic is that the components have different roles, in other words: 
+    Nowadays, the client-server architecture one of the most common architecture.\\
+    The main characteristic is that the components have different roles, in other words: 
     \begin{itemize}
-        \item Servers provide a set of services through a defined API, and most important, those API are \textbf{passive}, which meand that the server is waiting for client calls.
+        \item Servers provide a set of services through a defined API, and most important, those API are \textbf{passive}, which means that the server is waiting for client calls.
         \item Users access those services through clients.
         \item The communication is message based.
     \end{itemize}
-
     The typical architecture is the \textbf{two tiers architecture}, which is basically
-    composed by a server and a client and, based on the component load, we can distingue between
+    composed by a server and a client and, based on the client component workload, we can distinguish between
     \textit{thick-client} and \textit{thin-client}.\\
     Moreover, in this architecture the server can also operate like a client, 
     for example calling another server to get some information 
@@ -24,16 +22,15 @@
     In this architecture, the service became the most important thing.\\
     We basically 4 concepts:
     \begin{itemize}
-        \item Services: represent loosely coupled units of functionality
-        \item Service providers: entities which exported the services
-        \item Brokers: entities which hold the description of available 
+        \item \textit{Services}: represent loosely coupled units of functionality
+        \item \textit{Service providers}: entities which exported the services
+        \item \textit{Brokers}: entities which hold the description of available 
                 services to be searched by interested consumers and reduce the
                 dependency between client and server
-        \item Service consumers: entities which bind and invoke the services
+        \item \textit{Service consumers}: entities which bind and invoke the services
                 they need and exposed by the Brokers
     \end{itemize}
-    In the end, the \textit{Orchestration} is the process of invoking a set
-    of services in an ad-hoc workflow to satisfy a specific goal.\\
+    Strictly related with the \textit{Service Oriented} architecture, we have the \textit{orchestration} procedure. The \textit{Orchestration} is the process of invoking a set of services in an ad-hoc workflow to satisfy a specific goal.\\
     In the practice, there are many ways to implement this architecture.
     The most commons are:
     \begin{itemize}
@@ -45,22 +42,20 @@
     
     \paragraph{Web Services}
     \subparagraph{Def}
-    A software system designed to support interoperable machine-to-machine
+    A software system designed to support interoperability machine-to-machine
     interaction over a network.\\
+    
     Related on the Service Oriented Architecture, we can identify
     the Web Services as one of the most important application.\\
+    
     \textbf{Note that:} it exposes an interface that is described by \textit{WSDL},
     which stands for \textit{Web Service Description Language}, and it
-    contains the set of operations exported by the web service.\\
-    Web service \textbf{operations} are invoked through \textit{SOAP}
+    contains the set of operations exported by the web service. Moreover, web service \textbf{operations} are invoked through \textit{SOAP}
     \subparagraph{SOAP}
-    A protocol, based on \textit{XML}, which defines the way messages
-    (operation calls) are actually exchanged. It's usually based on \textit{HTTP}
+    A protocol, based on \textit{XML}, which defines the way messages (operation calls) are actually exchanged. It's usually based on \textit{HTTP}
     but other transport protocols can be used.
     \subparagraph{UDDI}
-    It stands for \textit{Universal Description Discovery And Integration}
-    describes the rules that allows web services to be exported and searched
-    through a \textit{registry}
+    It stands for \textit{Universal Description Discovery And Integration} describes the rules that allows web services to be exported and searched through a \textit{registry}
 
     \paragraph{REST}
     \subparagraph{Def}
@@ -69,18 +64,17 @@
     This style is very important for two main reasons:
     \begin{itemize}
         \item It's a nice way to describe the web
-        \item It's a set of principles that defin how Web standards
-                are supposed to be used
+        \item It's a set of principles that define how Web standards are supposed to be used
     \end{itemize}
     The REST style is an optimal solution in order to have:
     \begin{itemize}
         \item Scalability of component interactions
         \item Generality of interfaces
-        \item Indipendent deployment of components
+        \item Independent deployment of components
         \item Intermediary components to reduce latency, enforce
             security and encapsulate legacy systems
     \end{itemize}
-    The main contraints are:
+    The main constraints are:
     \begin{itemize}
         \item Interactions are client-server
         \item Interactions are stateless, otherwise:
@@ -90,13 +84,13 @@
                 \item A client can't call another server, because it needs that
                         specific server, because it has the interactions story 
         \end{itemize}
-            Moreover, with the stateless contraint:
+            Moreover, with the stateless constraint:
         \begin{itemize}
-            \item The system becames very scalable
+            \item The system becomes very scalable
             \item I can introduce a caching service, in order to improve performance
         \end{itemize} 
         \item The data within a response to a request must be implicitly or explicitly
-            labeled as cacheable or non-cacheable
+            labeled as \textit{cacheable} or \textit{non-cacheable}
         \item Each component cannot "see" beyond the immediate layer with which they
             are interacting, so we can say that the \textbf{REST is layered}.
         \item Components expose a uniform interface
@@ -104,23 +98,23 @@
             \textsl{optional constraint}
     \end{itemize}
     
-    \subparagraph{REST: Uniform interface contraints}
-    The uniform interface exposed by components must satisfy four contraints:
+    \subparagraph{REST: Uniform interface constraints}
+    The uniform interface exposed by components must satisfy four constraints:
     \begin{itemize}
         \item \textbf{Identification of resources:} each resource must have an Identification
-            (usually an \textit{URI}) and everything that have an ID is a valice resource 
+            (usually an \textit{URI}) and everything that have an ID is a valid resource 
             (including a service)
         \item \textbf{Manipulation of resources through representations}
         \begin{itemize}
             \item \textit{REST} components communicate by transferring a representation of a
                 resource in a format matching one of an evolving set of standards data types,
-                selected dinamically based on the capabilities or desires of the recipient and
+                selected dynamically based on the capabilities or desires of the recipient and
                 the nature of the resource
             \item Whether the representation is in the same format as the raw
                 resource, or is derived from the resource, remains hidden behind the interface
             \item A representation consists of data and metadata describing the data
         \end{itemize}
-        \item \textbf{Self-descriprive messages}
+        \item \textbf{Self-descriptive messages}
         \begin{itemize}
             \item Control data defines the purpose of a message between components, such as the 
                 action being requested or the meaning of a response
@@ -128,7 +122,7 @@
                 some connecting elements
         \end{itemize}
         \item \textbf{Hypermedia as the engine of application site}
-            Clients move from a state to another each time process a new representaiton, usually
+            Clients move from a state to another each time process a new representation, usually
             linked to other representation through hypermedia links
     \end{itemize}
 
@@ -167,7 +161,7 @@
     \begin{itemize}
         \item Information hiding hides complexity in accessing/managing the shared data
         \item Encapsulation plus information hiding reduce the management complexity, in fact we
-            can provide some load-balancing tecniques in order to share the server load.
+            can provide some load-balancing techniques in order to share the server load.
         \item Objects are easy to reuse among different applications
         \item Legacy components can be wrapped within objects and easily integrated in new applications
     \end{itemize}
@@ -195,7 +189,7 @@
     such a wide area. Another problem is the routing. For the same reasons routing queries
     efficiently in very large system is not a simple problem to approach.
     \subparagraph{Proactive}
-    The model is proactive in the sense that processes explicity request a tuple query,
+    The model is proactive in the sense that processes explicitly request a tuple query,
     and so there's is no way to be notified where an info is available. In order to have a
     reactive and asynchronous behavior must implemented with an extra process and a
     blocking operation.
@@ -207,8 +201,8 @@
     primitives, such as \textit{notify}.
 
     \subsubsection{Event-Based}
-    The main idea is that components collaborate by exchanging information about occurrent \textit{events}.
-    In particual we distingush among:
+    The main idea is that components collaborate by exchanging information about \textit{events}.
+    In particular we distinguish among:
     \begin{itemize}
         \item \textit{publishers}: components which publish notifications about the events they observe
         \item \textit{subscribers}: components which subscribe to events they are interested to be notified about
@@ -228,16 +222,16 @@
     We can have multiple paradigms:
     \begin{itemize}
         \item Client-Server
-        \item Remote evalutation
+        \item Remote evaluation
         \item Code on demand
         \item Mobile agent
     \end{itemize}
     The mobility can be divided in two types:
     \begin{itemize}
-        \item \textit{Strong mobility} is the ability of a system to allow migreation of both code and
+        \item \textit{Strong mobility} is the ability of a system to allow migration of both code and
             execution state
         \item \textit{Weak mobility} is the ability of a system to allow code movement across different
-            computational enviroments (\textit{e.g. JavaScript})
+            computational environments (\textit{e.g. JavaScript})
     \end{itemize}
     This solution provides a great flexibility for add, upgrade and enrich services at run-time, but, 
     at the same time, securing mobile code applications is tricky.
@@ -261,8 +255,7 @@
     \end{itemize}
     We can distinguish between:
     \begin{itemize}
-        Synchronous DS: there are lower and upper bounds
-        Asynchronous DS: there are no bounds
+        \item Synchronous DS: there are lower and upper bounds
+        \item Asynchronous DS: there are no bounds
     \end{itemize}
-    \subparagraph{Caution}
-    Any solution that is valid for an asynchronous DS is also valid for a synchronous one
+    \textbf{Note that}: Any solution that is valid for an asynchronous DS is also valid for a synchronous one.

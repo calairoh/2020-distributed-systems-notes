@@ -39,6 +39,8 @@ We can consider \textit{middleware} as a protocol layer in the sense that they i
     \item Implement scaling mechanism, such as for replication and caching
 \end{itemize}
 
+\begin{center}\rule{3in}{0.4pt}\end{center}
+
 \subsection{Remote procedure call}
 In a \textbf{local procedure call} the parameters are passed through stack. The caller writes the parameters in the stack and then call the procedure. The called simply read the parameters from the stack since the memory is shared.\\
 There are different ways to pass parameters to a procedure:
@@ -162,3 +164,198 @@ There are many variant of \textit{async RPC}:
 
 \subsubsection{Batched vs. queued RPC}
 \textit{Sun RPC} includes the ability to perform \textit{batched RPC}. RPCs that do not require a result are buffered on the client and they are sent all together when a non-batched call is required or when a timeout expires. It's important to notice that this mechanism enables yet another form of \textit{async RPC}.
+
+\subsection{Remote method invocation}
+
+It's an approach similar to the RPC, but it aims to obtain the advantages of OOP also in the distributed setting. The main difference is that remote object references can be passed around, so need to maintain the aliasing relationship.\\
+\textbf{Note that:} sometimes, this mechanism is built on top of RPC layer.
+
+\paragraph{IDL}
+The \textit{IDL} for distributed objects are much richer because it contains also inheritance, exception handling and so on.
+
+\subsubsection{Implementation}
+In practice there are two main approaches:
+
+\begin{itemize}
+\item \emph{Java RMI}: single language/platform
+\begin{itemize}
+    \item Easily supports passing parameters \textit{by reference} or \textit{by value} even in case of complex object
+    \item Support for code on demand (downloading code)
+\end{itemize}
+
+\item \emph{OMG CORBA}: multilanguage/multiplatform
+    \begin{itemize}
+        \item It supports passing parameters \textit{by reference} or \textit{by value}
+        \begin{itemize}
+            \item If the objects are passed by value, it's up to the programmer to guarantee the same semantics for methods on the   sender and receiver sides
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{3in}{0.4pt}\end{center}
+
+\subsection{Message oriented communication}
+
+Since \textit{RPC/RMI} fosters a sync model, this approach supports only point-to-point interaction. Moreover, synchronous communication is expensive and leads to \textit{rigid} architectures, since there is an intrinsically tight coupling between caller and callee.
+
+For this reason, there is another approach called \textbf{message oriented communication} that aims to solve these problems. In particular, it is:
+
+\begin{itemize}
+    \item centered around the notion of one-way message/event
+    \item usually asynchronous
+    \item often supporting persistent communication
+    \item often supporting multi-point interaction
+    \item brings more decoupling among components
+\end{itemize}
+
+\subsubsection{Communication types}
+
+\begin{itemize}
+    \item Sync vs. Async
+    \begin{itemize}
+        \item \textit{Sync}: the sender is blocked until the recipient has stored the message
+        \item \textit{Async}: the sender can continues immediately after sending the message
+    \end{itemize}
+
+    \item Transient vs. persistent
+    \begin{itemize}
+        \item \textit{Transient}: sender and receiver must both be running for the message to be delivered
+        \item \textit{Persistent}: the message is stored in the communication system until it can be delivered
+    \end{itemize}
+\end{itemize}
+
+\begin{figure}[h]
+    \caption{Transient communication}
+    \includegraphics[width=\textwidth]{src/images/transient-communication.png}
+    \centering
+\end{figure}
+
+\subsubsection{From network protocols to communication services}
+
+Since \textit{TCP} and \textit{UDP} are well known network protocols, the question is how to take advantages from these protocols. The answer is called \textbf{Socket}.\\
+Sockets provide a common abstraction for inter-process communication, and allows for connection-oriented (\textit{TCP}) or connectionless (\textit{UDP}) communication.
+
+\paragraph{Stream socket}
+
+It's based on concept of connection. In fact, the server accepts connection on a port and the client connects to the server. Each connected socket is uniquely identified by 4 numbers.
+
+\paragraph{Datagram socket}
+
+It's based on \textit{UDP}, so connectionless. Client and server use the same approach to send and receive datagrams, therefore both create a socket bound to a port and use it to send and receive datagrams.\\
+There is no connection and the same socket can be used to send (or receiver) datagrams to (or from) multiple hosts.
+
+\paragraph{Multicast socket}
+
+It exploits the IP multicast protocol that allows to efficiently deliver \textit{UDP} diagrams to multiple recipients.\\
+Component interested in receiving multicast datagrams addressed to a specific group must join the group. It's important to notice that groups are open, so it's not necessary to be a member of a group in order to send datagrams to the group.\\
+Usually, it's necessary to specify a port, in order to help operating systems to decide which process on the local machine to route packets to.
+
+\paragraph{MPI}
+
+The sockets are protocol independent and has low level primitives.\\
+This is not optimal when we are handling high performance network \textit{(e.g. clusters of computers)} where we need higher level primitives providing difference services besides pure read and write.\\
+The \textbf{MPI} is born as answer to this need.
+\begin{itemize}
+    \item Communication take place within a known group of processes
+    \item Each process within a group is assigned a local \emph{id}
+    \item Messages can be sent unicast or multicast (calling the entire group)
+\end{itemize}
+There is no support for fault tolerance, in fact crashes are supposed to be fatal.
+
+\subsubsection{Message Queuing}\label{message-queuing}
+
+In point-to-point persistent async communication we need to keep track of the messages received when we weren't running.\\
+For this reason we must keep a queue containing the messages received, that typically guarantee only eventual insertion in the queue, so it doesn't guarantee the recipient's behaviour.\\
+It's an intrinsically peer-to-peer architecture and each component holds an input and an output queue.
+
+\paragraph{Client-server with queues}
+
+We can apply this approach also to client-server architecture, where the server offers a queue in which clients put their requests. The server asynchronously fetches requests, processes them and returns results in the clients' queues.\\
+In this way, clients need not remain connected and queues can be shared in order to simplifies load balancing.
+
+\paragraph{Issues and solutions}\label{issues-and-solutions}
+
+\begin{itemize}
+    \item  Since queues are identified by symbolic names, it's necessary to have a lookup service to convert queue-level addresses in network addresses.
+    \item Queues are handled by queue managers, so they acting as relays
+    \item Relays are often organized in an overlay network, so the messages are routed by using application-level criteria. In this way we can improve also fault tolerance.
+    \item When integrating sub-systems, message conversion may be a problem. Message brokers can do this, providing application-level gateways supporting message conversion.
+\end{itemize}
+
+\subsubsection{Publish-subscribe}
+
+The idea is that application components can publish asynchronous event notifications, and/or declare their interest in event classes by issuing a subscription.\\
+\textit{Subscriptions} are collected by an event dispatcher component, responsible for routing events to all matching subscribers and collecting subscriptions. It can be centralized or distributed (for scalability reasons).
+\textbf{Communication is:}
+\begin{itemize}
+    \item Transiently async
+    \item Implicit
+    \item Multipoint
+\end{itemize}
+\textbf{Characteristics:}
+\begin{itemize}
+    \item Easy to add and remove components
+    \item Appropriate for dynamic \textbf{environments}
+\end{itemize}
+\textbf{Expressiveness} of the subscription language:
+\begin{itemize}
+    \item \emph{Subject-based:} the set of subjects is determined a priori
+    \item \emph{Content-based:} subscriptions contain expressions that allow clients to filter events based on their content, and the set of filters is determined by client subscriptions.
+\end{itemize}
+
+\textbf{Note that:} \emph{Subject-based} and \emph{Content-based} can be combined.
+
+\paragraph{Dispatcher}
+
+In a distributed architecture, the dispatcher is composed by a set of message brokers organized in an overlay network which cooperate to collect subscriptions and route messages. The topology of the network may vary: \emph{acyclic vs cyclic}
+
+\begin{itemize}
+    \item In an acyclic graph:
+        \begin{itemize}
+            \item The messages are forwarded from broker to broker and delivered to clients only if subscribed
+            \item The subscribes are forwarded from broker to broker and they are sent only once in a link
+            \item The performance depends also from the forwarding algorithm used because each time a broker receives a message it   must match it against the list of received filters to determine the list of recipients
+        \end{itemize}
+    
+    \item In a cyclic graph:
+    \begin{itemize}
+        \item We can use a \emph{DHT based approach}
+        \item \emph{Content-based} routing, in which every source define a shortest path tree
+    \end{itemize}
+\end{itemize}
+
+\subparagraph{Hierarchical forwarding}
+
+It exploits the tree properties. In particular:
+\begin{itemize}
+    \item Both messages and subscriptions are forwarded by brokers towards the root of the tree
+    \item Messages flow \textit{downwards} only if a matching subscription had been received along that route
+\end{itemize}
+
+\subparagraph{Complex event processing}
+\textit{CEP} systems adds the ability to deploy rules that describe how composite events can be generated from primitive (or composite) ones.
+
+\begin{center}\rule{3in}{0.4pt}\end{center}
+
+\subsection{Stream-oriented communication}
+
+The main concept is to send a sequence of data units in an orderly and fast way.\\
+Transmission modes:
+\begin{itemize}
+    \item \textit{Async}: the data items in a stream are transmitted on after the other without any further timing constrains
+    \item \textit{Sync}: there is a max end-to-end delay for each unit in the data stream
+    \item \textit{Isochronous}: there is a max and min end-to-end delay
+\end{itemize}
+It needs some non-functional requirements \emph{QoS}:
+\begin{itemize}
+    \item Required bit rate
+    \item Maximum delay to setup the session
+    \item Maximum end-to-end delay
+    \item Maximum variance in delay (\textit{jitter})
+\end{itemize}
+We can also enforcing \emph{QoS} at the application layer:
+\begin{itemize}
+    \item Buffering: control \textit{max jitter} by sacrificing session setup time
+    \item Forward error connection
+    \item Interleaving data: to mitigate the impact of lost packets
+\end{itemize}

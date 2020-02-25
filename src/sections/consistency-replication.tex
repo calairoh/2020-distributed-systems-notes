@@ -459,52 +459,50 @@ as the final result, or the counter value, will always be the same.
 
 \begin{center}\rule{3in}{0.4pt}\end{center}
 
-\subsubsection{Client-centric
-consistency}\label{client-centric-consistency}
+\subsection{Client-centric consistency}
 
-\emph{Problem:} What happens if a client dynamically changes the replica
-it connects to?
+The previous consistency model referred to a situation in which clients are connected always
+to a specific replica, but \textit{what happens if a client dynamically changes the replica
+it connects to}?
 
-\paragraph{Monotonic reads}\label{monotonic-reads}
+\subsubsection{Monotonic reads}
 
 \textbf{Def.} If a process reads the value of a data item \emph{x}, any
 successive read operation on \emph{x} by that process will always return
-that same value or a more recent value
-
+that same value or a more recent value.\\
 \textbf{Idea} Once a process reads a value from a replica, it will never
-see an older value from a read at a different replica
+see an older value from a read at a different replica.
 
 \begin{figure}[htbp]
-\centering
-\includegraphics{C:/Users/Davide/AppData/Roaming/Typora/typora-user-images/image-20200103163647355.png}
-\caption{image-20200103163647355}
+    \centering
+    \includegraphics[width=\textwidth]{src/images/consistency-replication/monotonic-reads.png}
+    \caption{An example of \textit{monotonic reads} model implementation}
 \end{figure}
 
-\paragraph{Monotonic writes}\label{monotonic-writes}
+\subsubsection{Monotonic writes}
 
 \textbf{Def.} A write operation by a process on a data item \emph{x} is
 completed before any successive write operation on \emph{x} by the same
+process.\\
+It's similar to \emph{FIFO consistency}, although this time for a single
 process.
 
-It's similar to \emph{FIFO consistency}, although this time for a single
-process
-
 \begin{figure}[htbp]
-\centering
-\includegraphics{C:/Users/Davide/AppData/Roaming/Typora/typora-user-images/image-20200103172406404.png}
-\caption{image-20200103172406404}
+    \centering
+    \includegraphics[width=\textwidth]{src/images/consistency-replication/monotonic-writes.png}
+    \caption{An example of \textit{monotonic writes} model implementation}
 \end{figure}
 
-\paragraph{Read your writes}\label{read-your-writes}
+\subsubsection{Read your writes}
 
 \textbf{Def.} The effect of a write operation by a process on a data
 item \emph{x} will always be seen by a successive read operation on
-\emph{x} by the same process
+\emph{x} by the same process.
 
 \begin{figure}[htbp]
-\centering
-\includegraphics{C:/Users/Davide/AppData/Roaming/Typora/typora-user-images/image-20200103172527259.png}
-\caption{image-20200103172527259}
+    \centering
+    \includegraphics[width=\textwidth]{src/images/consistency-replication/read-your-writes.png}
+    \caption{An example of \textit{read your write} model implementation}
 \end{figure}
 
 \paragraph{Writes follow reads}\label{writes-follow-reads}
@@ -515,26 +513,30 @@ guaranteed to take place on the same or more recent value of \emph{x}
 that was read
 
 \begin{figure}[htbp]
-\centering
-\includegraphics{C:/Users/Davide/AppData/Roaming/Typora/typora-user-images/image-20200103172733976.png}
-\caption{image-20200103172733976}
+    \centering
+    \includegraphics[width=\textwidth]{src/images/consistency-replication/writes-follow-reads.png}
+    \caption{An example of \textit{writes follow reads} model implementation}
 \end{figure}
 
-\paragraph{Implementation}\label{implementation-1}
+\paragraph{Implementation}
 
 \begin{itemize}
-\itemsep1pt\parskip0pt\parsep0pt
-\item
-  Each operation gets a unique identifier
-\item
-  Two sets are defined for each client
-\item
-  Read-set: the write identifiers relevant for the read operations
-  performed by the client
-\item
-  Write-set: the identifiers of the write performed by the client
-\item
-  It can be encoded as vector clocks
+    \itemsep1pt\parskip0pt\parsep0pt
+    \item
+      Each operation gets a unique identifier
+      
+    \item
+      Two sets are defined for each client
+    \begin{itemize}
+        \item
+          Read-set: the write identifiers relevant for the read operations
+          performed by the client
+        \item
+          Write-set: the identifiers of the write performed by the client
+    \end{itemize}
+    
+    \item
+      It can be encoded as vector clocks
 \end{itemize}
 
 \begin{center}\rule{3in}{0.4pt}\end{center}
@@ -544,75 +546,68 @@ that was read
 \subsubsection{Replica placement}\label{replica-placement}
 
 \begin{itemize}
-\itemsep1pt\parskip0pt\parsep0pt
-\item
-  Permanent replicas: statically configured
-\item
-  Server-initiated replicas:
-\item
-  Create dynamically
-\item
-  Move data closer to clients
-\item
-  Often require topological knowledge
-\item
-  Client-initiated replicas: rely on a client cache
+    \itemsep1pt\parskip0pt\parsep0pt
+    \item
+      Permanent replicas: statically configured
+      
+    \item
+      Server-initiated replicas:
+    \begin{itemize}
+        \item
+          Create dynamically
+        \item
+          Move data closer to clients
+        \item
+          Often require topological knowledge
+    \end{itemize}
+    
+    \item
+      Client-initiated replicas: rely on a client cache
 \end{itemize}
 
 \begin{figure}[htbp]
-\centering
-\includegraphics{C:/Users/Davide/AppData/Roaming/Typora/typora-user-images/image-20200103173810593.png}
-\caption{image-20200103173810593}
+    \centering
+    \includegraphics[scale=0.7]{src/images/consistency-replication/replica-placement.png}
+    \caption{Replica placement placement}
 \end{figure}
 
 \subsubsection{Update propagation}\label{update-propagation}
 
 \begin{itemize}
-\itemsep1pt\parskip0pt\parsep0pt
-\item
-  Perform the update and propagate only a notification (works best if
-  \emph{\#reads \textless{}\textless{} \#writes})
-\item
-  Transfer the modified data to all copies (works best if \emph{\#reads
-  \textgreater{}\textgreater{} \#writes})
-\item
-  Propagate information to enable the update operation to occur at other
-  copies (we need to take into account side effects)
+    \itemsep1pt\parskip0pt\parsep0pt
+    \item
+      Perform the update and propagate only a notification (works best if
+      \emph{\#reads \textless{}\textless{} \#writes})
+    \item
+      Transfer the modified data to all copies (works best if \emph{\#reads
+      \textgreater{}\textgreater{} \#writes})
+    \item
+      Propagate information to enable the update operation to occur at other
+      copies (we need to take into account side effects)
 \end{itemize}
 
 \paragraph{How do this?}\label{how-do-this}
 
 \begin{itemize}
-\itemsep1pt\parskip0pt\parsep0pt
-\item
-  Push-based approach: the update is propagated to all replicas,
-  regardless of their needs
-\item
-  Pull-based approach: an update is fetched on demand when needed and
-  this is more convenient if \emph{\#reads \textless{}\textless{}
-  \#writes}
+    \itemsep1pt\parskip0pt\parsep0pt
+    \item
+      Push-based approach: the update is propagated to all replicas,
+      regardless of their needs
+    \item
+      Pull-based approach: an update is fetched on demand when needed and
+      this is more convenient if \emph{\#reads \textless{}\textless{}
+      \#writes}
 \end{itemize}
 
 \paragraph{Propagation strategies}\label{propagation-strategies}
 
 \begin{itemize}
-\itemsep1pt\parskip0pt\parsep0pt
-\item
-  Anti-entropy: server chooses another at random and exchanges updates
-\item
-  Gossiping: an update propagation triggers another towards a different
-  server, and the server reduces the probability to gossip further as
-  the updates arrives continuously
-\item
-  Intrinsically distributed, redundant, scalable, fault-tolerant and
-  resilient to topological changes
+    \itemsep1pt\parskip0pt\parsep0pt
+    \item
+      Anti-entropy: server chooses another at random and exchanges updates
+    \item
+      Gossiping: an update propagation triggers another towards a different
+      server, and the server reduces the probability to gossip further as
+      the updates arrives continuously. This method is intrinsically distributed, 
+      redundant, scalable, fault-tolerant and resilient to topological changes
 \end{itemize}
-
-\begin{center}\rule{3in}{0.4pt}\end{center}
-
-\subsubsection{Transactional models}\label{transactional-models}
-
-Data consistency is a key aspect in distributed databases.
-
-Transactions define groups of operations and provide ACID guarantees
-atomicity, consistency, isolation and durability.

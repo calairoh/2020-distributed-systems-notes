@@ -1,5 +1,7 @@
 \subsection{Replication}
 
+\subsubsection{Introduction}
+
 \begin{itemize}
     \item
       Improve performance. How it does?
@@ -418,34 +420,42 @@ Two ways of access to a synchronized variable
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics{src/images/consistency-replication/entry-consistency.png}
+    \includegraphics[width=\textwidth]{src/images/consistency-replication/entry-consistency.png}
     \caption{An example of entry consistency implementation}
 \end{figure}
+
+\subsubsection{Eventual consistency}
+
+\textbf{Idea} Eventually, you will receive updates\\
+\\
+There are situations in which there are no simultaneous
+updates, or can easily resolved (\emph{e.g.~highest ID wins}) and mostly
+reads. In practice, this system is often sufficient: updates are guaranteed to
+eventually propagate to all replicas.\\
+\\
+An important concept related to this consistency model is the \textbf{conflict-free replicated data type}.
+In practice this kind of data type guarantees convergence even
+if updates are received in different orders. In this case we guarantee
+the convergence of the result.
+
+For example, think about an \emph{integer counter}. If I have a sequence of elementary operations, such as
+$+/- i$, where $i$ is any integer, we do not care about the order in which the operations arrive, 
+as the final result, or the counter value, will always be the same.
+
+\begin{equation*}
+    (+6) \text{   } (-5) \text{   } (+1) \text{   } = \text{   } (+2)
+\end{equation*}
+\begin{equation*}
+    (-5) \text{   } (+1) \text{   } (+6) \text{   } = \text{   } (+2)
+\end{equation*}
 
 \subsection{Summary of consistency models}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics{src/images/consistency-replication/summary.png}
+    \includegraphics[width=\textwidth]{src/images/consistency-replication/summary.png}
     \caption{Summary of consistency models previously seen}
 \end{figure}
-
-\begin{center}\rule{3in}{0.4pt}\end{center}
-
-\paragraph{Eventual consistency}
-
-\textbf{Idea} Eventually, you will receive updates
-
-\emph{Intro:} there are situations in which there are no simultaneous
-updates, or can easily resolved (\emph{e.g.~highest ID wins}) and mostly
-reads
-
-In practice, this system is often sufficient: updates are guaranteed to
-eventually propagate to all replicas.
-
-\textbf{Conflict-free replicated data types} guarantee convergence even
-if updates are received in different orders. In this case we guarantee
-the convergence of the result (\emph{e.g.~integer counter})
 
 \begin{center}\rule{3in}{0.4pt}\end{center}
 

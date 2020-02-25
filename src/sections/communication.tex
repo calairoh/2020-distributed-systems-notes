@@ -6,7 +6,7 @@ An example of \textit{layered protocol} is the \textit{OSI model}. As we can see
 
 \begin{figure}[h]
 \caption{OSI model}
-\includegraphics[width=\textwidth]{src/images/osi-model.png}
+\includegraphics[width=\textwidth]{src/images/communication/osi-model.png}
 \centering
 \end{figure}
 
@@ -21,7 +21,7 @@ In the \textit{OSI model} we distinguish between three different kinds of layers
     \item \textbf{Transport layer}
         \begin{itemize}
             \item It describes how data is transmitted
-            \item \unserline{It offers a service independent from the lower layers}
+            \item \underline{It offers a service independent from the lower layers}
             \item It provides the actual communication facilities for most distributed systems
         \end{itemize}
         The main standards are \textbf{TCP} \textit{(connection-oriented, reliable, stream-oriented communication)} and \textbf{UDP} \textit{(unreliable datagram communication)}
@@ -53,7 +53,7 @@ There are different ways to pass parameters to a procedure:
 
 \begin{figure}[h]
 \caption{RPC in detail}
-\includegraphics[width=\textwidth]{src/images/rpc-in-detail.png}
+\includegraphics[width=\textwidth]{src/images/communication/rpc-in-detail.png}
 \centering
 \end{figure}
 
@@ -150,14 +150,14 @@ There are many variant of \textit{async RPC}:
     \item If no result is needed execution can resume after an \textit{ack message} is received from the server
     \begin{figure}[h]
         \caption{Asynchronous}
-        \includegraphics[scale=0.6]{src/images/async.png}
+        \includegraphics[scale=0.6]{src/images/communication/async.png}
         \centering
     \end{figure}
 
     \item The callee may (async) invoke the caller back or invocation may return immediately a \textit{promise}
     \begin{figure}[h]
         \caption{Deferred synchronous}
-        \includegraphics[scale=0.6]{src/images/deferred-synchronous.png}
+        \includegraphics[scale=0.6]{src/images/communication/deferred-synchronous.png}
         \centering
     \end{figure}
 \end{itemize}
@@ -226,7 +226,7 @@ For this reason, there is another approach called \textbf{message oriented commu
 
 \begin{figure}[h]
     \caption{Transient communication}
-    \includegraphics[width=\textwidth]{src/images/transient-communication.png}
+    \includegraphics[width=\textwidth]{src/images/communication/transient-communication.png}
     \centering
 \end{figure}
 
@@ -262,7 +262,7 @@ The \textbf{MPI} is born as answer to this need.
 \end{itemize}
 There is no support for fault tolerance, in fact crashes are supposed to be fatal.
 
-\subsubsection{Message Queuing}\label{message-queuing}
+\subsubsection{Message Queuing}
 
 In point-to-point persistent async communication we need to keep track of the messages received when we weren't running.\\
 For this reason we must keep a queue containing the messages received, that typically guarantee only eventual insertion in the queue, so it doesn't guarantee the recipient's behaviour.\\
@@ -273,7 +273,7 @@ It's an intrinsically peer-to-peer architecture and each component holds an inpu
 We can apply this approach also to client-server architecture, where the server offers a queue in which clients put their requests. The server asynchronously fetches requests, processes them and returns results in the clients' queues.\\
 In this way, clients need not remain connected and queues can be shared in order to simplifies load balancing.
 
-\paragraph{Issues and solutions}\label{issues-and-solutions}
+\paragraph{Issues and solutions}
 
 \begin{itemize}
     \item  Since queues are identified by symbolic names, it's necessary to have a lookup service to convert queue-level addresses in network addresses.

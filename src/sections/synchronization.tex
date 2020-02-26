@@ -52,5 +52,73 @@ Let's consider two distinct events, $e$ and $e'$. The two events are in \textbf{
     \item If neither $e \rightarrow e'$ nor $e' \rightarrow e$, the two events are concurrent $e || e'$
 \end{itemize}
 
-\subsubsection{Lamport clock}
+\subsubsection{Scalar clocks (Lamport clock)}
 Leslie Lamport created a procedure in which we can capture the \textit{happend-before} relationship numerically by using integers to represent the clock value and have no relationship with a physical clock whatsoever.
+
+\paragraph{Implementation}
+\begin{itemize}
+    \item \textit{Initial condition}: every process has an integer counter initialized at 0, that we will call $L_i$
+    \item Every time a message is sent by process $i$, this is timestamped with $L_i$
+    \item $L_i$ is incremented:
+    \begin{enumerate}
+        \item Before process $i$ sends a message
+        \item Upon receipt of a message, process $i$ sets $L_i$ to $\texttt{MAX}(ts(msg), L_i) + 1$, where $ts(msg)$ is the timestamp contained in the message received.
+    \end{enumerate}
+\end{itemize}
+
+\begin{figure}[h]
+    \caption{An example of Lamport clock implementation}
+    \includegraphics[scale=0.5]{src/images/synchronization/scalar-clock.png}
+    \centering
+\end{figure}
+
+\textbf{Note that}, this procedure give us only a partial order. In order to achieve a total order we can simply attach the process ID to the integer counter, so, for example, counter $1.3$ tells us that the current counter value is $1$ in process $3$. It's important to notice that achieve a total order doesn't mean there are no parallel events.
+
+\subsubsection{Vector clocks}
+In scalar clocks, from the \textit{happens-before} relationship we know that $e \rightarrow e' \implies L(e) < L(e')$ but, as we can see, this is an implication, not a double implication, so the reverse doesn't necessary hold. In order to solve this problem there were introduced the vector clocks.
+
+\paragraph{Implementation}
+
+In vector clocks each process maintains a vector of $N$ values (where $N$ is the number of processes), such that every process has a snapshot of the situation of the other processes.\\
+So, let's define the vector $V_i[N]$ as the vector of the process $i$. Each process $i$ knows something about the situation of other processes, so if we have $V_i[j] = k$, this means that process $i$ knows that $k$ events occurred in process $j$.
+
+\begin{itemize}
+    \item \textit{Initial condition}: every process has a vector where all cells are initialized at 0, so $V_i[j] = 0 \forall i, j$
+    \item Every time a message is sent by process $i$, this is timestamped with $L_i$
+    \item Increments:
+    \begin{enumerate}
+        \item $V_i[i]$ is incremented just before process $i$ sends a message
+        \item Upon receipt of a message, process $i$ sets $V_i[j] = \texttt{MAX}(ts(msg), V_i[j]) \texttt{  } \forall i \neq j$, where $ts(msg)$ is the timestamp contained in the message received, and then increments $V_i[i]$.
+    \end{enumerate}
+\end{itemize}
+
+\begin{figure}[h]
+    \caption{An example of vector clock implementation}
+    \includegraphics[scale=0.5]{src/images/synchronization/vector-clock.png}
+    \centering
+\end{figure}
+
+\paragraph{Causal delivery}
+We can also use vector clocks, with slight variations, in order to implement causal delivery of messages in a totally distributed way. In practice, we increment the clock only when sending a message and, on receive, we just merge, without any increment.
+
+\begin{figure}[h]
+    \caption{An example of vector clock implementation}
+    \includegraphics[scale=0.5]{src/images/synchronization/vector-clock-causality.png}
+    \centering
+\end{figure}
+
+\subsection{Mutual exclusion}
+The \textbf{mutual exclusion} aims to prevent interference and ensure consistency of resource access among several processes. In order to face up with this problem we assume to have \textbf{reliable channels and processes}. Moreover, the mutual exclusion has to satisfy two main requirements: \textbf{safety}, which means than only one process may execute in the critical section at a time, and \textbf{liveness}, which means that all requests to enter/exit the critial section eventually succeed.
+
+\subsubsection{Mutual exclusion with scalar clocks}
+The procedure is pretty simple and it exploits the scalar clock methodology with the goal to use timestamps as a metric for resource assignment.
+
+In details, a process multicasts a resource request message to all processes, including its timestamp. When processes receive the message, they have three options:
+\begin{enumerate}
+    \item If it doesn't hold the resource and it's not interested to hold it, simply replies with an \textit{ACK}
+    \item If it holds the resource, puts the requests into a local queue ordered according to timestamps
+    \item If it doesn't hold the resource, it's interested to hold it but it has already sent a request message, it replies with an \textit{ACK} if the incoming request message has a lower timestamp, otherwise put it on a local queue
+\end{enumerate}
+When releasing a resource, a process acknowledges all the requests queued and the resource is granted to a process when its request has been acknowledged by all processes.
+
+\subsubsection{Token ring solution}

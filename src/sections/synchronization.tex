@@ -122,3 +122,43 @@ In details, a process multicasts a resource request message to all processes, in
 When releasing a resource, a process acknowledges all the requests queued and the resource is granted to a process when its request has been acknowledged by all processes.
 
 \subsubsection{Token ring solution}
+Another possible solution used to provide mutual exclusion is the \textbf{token ring}. In order to apply this mechanism, the processes must be logically arranged in a ring (don't care if their physical connections are not arranged in a ring).
+The idea is that only the owner of the token can access a certain resource. The token is forwarded from process to process through the ring network. When the token is received by a process $P$ can perform three different behaviours:
+\begin{itemize}
+    \item If $P$ is not interested in accessing the resource, it forwards the token
+    \item If $P$ is interested in accessing the resource, $P$ retains the token and accesses the resource.
+\end{itemize}
+When operations on the resource are finished, this one is released and the token forwarded to the next process.
+
+\subsection{Leader election}
+We know that many distributed algorithms and procedures need a coordinator, but in this case we have the agreement problem, that is, all processes in the systems must agree on a new leader. 
+
+In order to do it, we have to do some assumptions. First of all \textbf{nodes must be distinguishable} and, moreover, the \textbf{system must be closed}, in the sense that processed know each other and their IDs.
+
+
+\subsubsection{Bully election algorithm}
+The idea of this algorithm is that, once detected the coordinator failure, a new election starts. If the algorithm runs right, at the end, the process with the highest ID will be elected as coordinator, hence the name of the algorithm. In order to make this algorithm works right, we will have to do some additional assumptions: \textbf{links are reliable} and \textbf{it's possible to detect the failed process}.
+
+\paragraph{Procedure}
+\begin{enumerate}
+    \item Process $P$ detects that the coordinator is no more available and so it starts a new election by sending an \textit{ELECT} message, including its ID, to all other processes with higher IDs.
+    \item When a process $P'$ receives an \textit{ELECT} message it responds to the sender and starts a new election, if it has not already started.
+    \item If no one responds to a process $P''$ that has sent an \textit{ELECT} message, $P''$ sends a \textit{COORD} message to all other processes in the net with a lower ID.
+\end{enumerate}
+
+It's important to notice that if the previous coordinator process can hold a new election when it comes back up, and so take back the role of coordinator, since we assume that, having been a coordinator, has a higher ID than the current coordinator.
+
+\subsubsection{Ring-based algorithm}
+This algorithm is based on the assumption that nodes (processes) are arranged in a physical or logical ring network. The procedure is quite similar w.r.t. the \textit{bully election algorithm}.
+
+\paragraph{Procedure}
+\begin{enumerate}
+    \item Process $P$ detects that the coordinator is no more available and so it starts a new election by sending an \textit{ELECT} message, including its ID, to the next alive neighbor.
+    \item When a process $P'$ receives an \textit{ELECT} message it checks if its ID is in the list. If so, it change the message type to \textit{COORD}, otherwise it adds its own ID to the list. In both cases the new message is forwarded to the next alive neighbor. 
+    \item When a process $P'$ receives a \textit{COORD} message it takes the highest ID in the list and set it as coordinator.
+\end{enumerate}
+
+\textbf{Note that}, when the \textit{COORD} message is received, the host is also informed about the remaining members of the ring and if multiple processes starts a new election procedure, the result will converge to the same content and so to the same (new) coordinator.
+
+\subsection{Collecting global state}
+Since we have a distributed system, a global state consists of the local state of each process and the messages in transit over the links. It's important to notice that collecting a global state is easier if we have a global clock, but in distributed systems we don't have it, so, potentially, we have to record the process states in different times and merge the information in such a way that we have a consistent global state.

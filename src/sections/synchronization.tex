@@ -162,3 +162,48 @@ This algorithm is based on the assumption that nodes (processes) are arranged in
 
 \subsection{Collecting global state}
 Since we have a distributed system, a global state consists of the local state of each process and the messages in transit over the links. It's important to notice that collecting a global state is easier if we have a global clock, but in distributed systems we don't have it, so, potentially, we have to record the process states in different times and merge the information in such a way that we have a consistent global state.
+
+\subsubsection{Distributed snapshot}
+A \textbf{distributed snapshot} reflects a state in which the distributed system might have been and obviously this snapshot must be \textit{consistent}. Moreover, we introduce also the \textit{cut} definition. A \textbf{cut} is the union of the histories of all processes in a system up to a certain event. Note that, a cut defined as before can also be not consistent \textit{(for example, look at the figure 23)}. So, we define also the \textit{consistent cut}. A \textbf{consistent cut} is a cut in which for every event \textit{e} included, the cut includes also all the events that happened before \textit{e}. In other words, when a message received on process \textit{P'} is recorded, the message sending on process \textit{P} must be recorded as well, but the contrary is not required. 
+
+\begin{figure}[h]
+    \caption{An example of consistent and not consistent cut}
+    \includegraphics[scale=0.5]{src/images/synchronization/consistent-cut.png}
+    \centering
+\end{figure}
+
+\subsubsection{Chandy-Lamport algrithm}
+\textit{Chandy-Lamport algorithm} is a snapshot algorithm that is used in distributed systems for recording a consistent global state of an asynchronous system. In order to perform this algorithm we assume we have reliable links and nodes (processes) and a FIFO policy concerning the queue transit method. 
+
+\paragraph{Procedure}
+A process \textit{P} runs the algorithm when a specific token is received or, in alternative, when process \textit{P} itself decides to start the procedure.
+\begin{itemize}
+    \item The observer process (the process taking a snapshot):
+    \begin{enumerate}
+        \item Saves its own local state
+        \item Sends a snapshot request message bearing a snapshot token to all other processes
+    \end{enumerate}
+    \item A process receiving the snapshot token for the first time on any message:
+    \begin{enumerate}
+        \item Sends the observer process its own saved state
+        \item Attaches the snapshot token to all subsequent messages (to help propagate the snapshot token)
+    \end{enumerate}
+    \item When a process that has already received the snapshot token receives a message that does not bear the snapshot token, this process will forward that message to the observer process
+\end{itemize}
+
+\textbf{Note that,} it's not required to block the computation, in fact, the operation of collecting the snapshots is interleaved with processing. Moreover, we can start the \textit{distributed snapshot} in different locations at the same time, since we can associate a specific identifier to each snapshot in order to identify them.
+
+\begin{figure}[h]
+    \caption{An example of a Chandy-Lamport algorithm execution}
+    \includegraphics[scale=0.4]{src/images/synchronization/distributed-snapshot.png}
+    \centering
+\end{figure}
+
+\paragraph{Theorem}
+The distributed snapshot algorithm selects a consistent cut.\\
+\textbf{Proof}\\
+Let $e_i$ and $e_j$ be two events occurring at process $p_i$ and $p_j$, respectively, such that $e_i \to e_j$.\\
+Suppose $e_j$ us part of the cut and $e_i$ is not. This means $e_j$ occurred before $p_j$ records its state, while $e_i$ occurred after $p_i$ saved its state.\\
+If $p_i = p_j$ this is trivially impossible.\\
+If $p_i \neq p_j$, let's consider $m_1, ..., m_h$ be the sequence of messages that give rise to the relation $e_i \to e_j$.\\
+If $e_i$ occurred after $p_i$ saved its state then $p_i$ sent a marker ahead of $m_1, ..., m_h$. By FIFO ordering over channels and by the marker propagating rules it results that $p_j$ received a marker ahead of $m_1,...,m_h$. By the marker processing rule it results that $p_j$ saved its state before receiving $m_1,...,m_h$, i.e., before $e_j$ , which contradicts our initial assumption.

@@ -126,23 +126,28 @@ In order to reach an \textit{agreement in a process group}, these properties mus
 When the communication channels are not reliable it's not possible to
 reach a consensus, but \textit{it's possible when we have communication channels reliable and non-reliable processes.}
 
-\paragraph{FloodSet Algorithm}\label{floodset-algorithm}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics{C:/Users/Davide/AppData/Roaming/Typora/typora-user-images/image-20200104153504048.png}
-\caption{image-20200104153504048}
-\end{figure}
+\textbf{FloodSet Algorithm}\\
+\textit{Procedure}\\
+\begin{itemize}
+    \item Let $v_0$ be a pre-specified default value
+    \item Each process maintains a variable $W$ \textit{(subset of V)} initialized with its start value
+    \item For $f+1$ rounds:
+    \begin{itemize}
+        \item Each process sends $W$ to all other processes
+        \item It adds the received sets to $W$
+    \end{itemize}
+    \item After $f+1$ rounds:
+    \begin{itemize}
+        \item if $|W| = 1$: decide on $W$'s element, so all processes agree on the same value
+        \item if $|W| > 1$: decide on $v_0$ or, in alternative, use a common function to decide \textit{(e.g. $min(W)$)}
+    \end{itemize}
+\end{itemize}
 
 We notice that with this algorithm, each process needs to know the
-entire set \emph{W} only if the cardinality is greater than 1. To
-improve this algorithm we can broadcast \emph{W} at the first round and
-we go on only if the cardinality is greater than 1.
+entire set \emph{W} only if $|W| > 1$. To improve this algorithm we can broadcast \emph{W} at the first round and we go on only if $|W| > 1$.
 
-\paragraph{But, what if we have byzantine
-faults?}\label{but-what-if-we-have-byzantine-faults}
-
-In this case the properties change:
+\textbf{Agreement in a process group in present of byzantine faults}\\
+If we have a process group in which there may be byzantine faults the properties change:
 
 \begin{itemize}
 \itemsep1pt\parskip0pt\parsep0pt
@@ -157,20 +162,15 @@ In this case the properties change:
 \end{itemize}
 
 This problem can be formalized as the generals problems with traitors.
-Lamport (1982) showed that if there are m traitors, \emph{2m+1} loyal
+Lamport (1982) showed that if there are m traitors, $2m+1$ loyal
 generals are needed for an agreement to be reached, for a total of
-\emph{3m+1}.
-
-Moreover, it's proved that is not possible to reach an agreement if
-there is one faulty process in an asynchronous system.
+$3m+1$. Moreover, \textit{it's proved that is not possible to reach an agreement if there is one faulty process in an asynchronous system}.
 
 \begin{center}\rule{3in}{0.4pt}\end{center}
 
 \subsection{Reliable group
 communication}\label{reliable-group-communication}
-
-\emph{Assumption:}
-
+Let us assume the following properties:
 \begin{itemize}
 \itemsep1pt\parskip0pt\parsep0pt
 \item
@@ -181,39 +181,36 @@ communication}\label{reliable-group-communication}
   Channel is faulty
 \end{itemize}
 
-We can have two strategies:
-
+In order to achieve a \textit{reliable group communication} we can have two strategies:
 \begin{itemize}
 \itemsep1pt\parskip0pt\parsep0pt
 \item
-  Positive acknowledgements: we send every time ACKs (Pessimist
-  approach)
+  Positive acknowledgements: we send every time \textit{ACKs} \textit{(Pessimist
+  approach)}
 \item
-  Negative acknowledgements: we send NACKs when something goes wrong
-  (Optimist approach - however, how the client know that him has to
-  receive a packet and so send a NACK?)
+  Negative acknowledgements: we send \textit{NACKs} when something goes wrong \textit{(Optimist approach)} 
+
 \end{itemize}
+
+\textbf{Note that,} the second approach has a problem: \textit{how the client know that him has to receive a packet and so send a NACK?}
 
 \subsubsection{Non-faulty processes with faulty
 channels}\label{non-faulty-processes-with-faulty-channels}
 
-\paragraph{Scalable reliable
-multicast}\label{scalable-reliable-multicast}
+\paragraph{Scalable reliable multicast}\\
+The main \textit{idea} is that if a process discovers that something went wrong, notify the error to the other receivers in the net and then also to the sender.\\
+\textit{More in detail, }
+when an host discovers that something went wrong, \textit{e.g. it didn't receive a packet}, it notifies the error to all the other receivers with an \textit{NACK} message in such a way to cause the suppression their feedback.\\
+Once do that, the host sends a \textit{NACK} to the sender after waiting for the timeout to expire. The timeout is indicated by the letter \textit{T} in the image below and it's set randomly. In this way the sender receives only one \textit{NACK}.\\
+Note that, the situation doesn't change if two ore more hosts has the same \textit{random delay} timeout.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics{C:/Users/Davide/AppData/Roaming/Typora/typora-user-images/image-20200106131941233.png}
-\caption{image-20200106131941233}
-\end{figure}
+\paragraph{Hierarchical feedback control}\label{hierarchical-feedback-control}
 
-\paragraph{Hierarchical feedback
-control}\label{hierarchical-feedback-control}
+The main \textit{idea} is that receivers are organized in groups headed by a coordinator
+and groups are organized in a tree routed at the sender.
 
-\textbf{Idea:} Receivers are organized in groups headed by a coordinator
-and groups are organized in a tree routed at the sender
-
-The coordinator takes care about its group and it can remove a message
-from its buffer if it has received an ack from:
+\textit{More in detail}, the coordinator takes care about its group and it can remove a message
+from its buffer if it has received an \textit{ACK} from:
 
 \begin{itemize}
 \itemsep1pt\parskip0pt\parsep0pt
@@ -223,18 +220,14 @@ from its buffer if it has received an ack from:
   All of its child coordinators
 \end{itemize}
 
-\emph{Problem:} the hierarchy has to be built and maintained
+The main \textit{problem} here is that the hierarchy has to be built and maintained.
 
 \subsubsection{Faulty processes with non-faulty
 channels}\label{faulty-processes-with-non-faulty-channels}
 
-\emph{Atomic multicast problem:} A message be delivered either to all
-the members of a group or to none, and that the order of the messages be
-the same at all receivers.
-
-\emph{Example}: the order of command in a database transaction.
-
-\textbf{Close synchrony}:
+If we have faulty processes and non-faulty channel, things becomes harder. In this case we have to face with the \emph{atomic multicast problem}, that is, a message must be delivered either to all the members of a group or to none, and that the order of the messages be the same at all receivers.\\
+The typical example is the order of command in a database transaction.\\
+Ideally we want to achieve \textbf{close synchrony}:
 
 \begin{itemize}
 \itemsep1pt\parskip0pt\parsep0pt
@@ -246,16 +239,11 @@ the same at all receivers.
   We want that a multicast to a process group is delivered to its full
   membership
 \end{itemize}
+However, \textit{close synchrony} cannot be achieved in the presence of failures.
 
-But, close synchrony cannot be achieved in the presence of failures
-
-\subsubsection{Detect a failure}\label{detect-a-failure}
-
-Note that, even if we detect a failure we cannot know whether a failed
-process has received and processed a message
-
-The model becomes:
-
+\subsubsection{Failure detection}\label{detect-a-failure}
+In most of systems, a failure detection mechanism is needed in order to understand if something went wrong during the execution of a procedure. However, it's important to notice that, even if we detect a failure we cannot know whether a failed process has received and processed a message.
+With this introducation, the model becomes:
 \begin{itemize}
 \itemsep1pt\parskip0pt\parsep0pt
 \item
@@ -269,22 +257,19 @@ The model becomes:
   Only relevant messages are received in a specific order
 \end{itemize}
 
-\subparagraph{Virtual synchrony}\label{virtual-synchrony}
+\subparagraph{Virtual synchrony}
+It's a form or reliable multicast in which group view changes are delivered in a consistent order with respect to other multicasts and with respect to each other.\\
 
-\textbf{Group view:} set of processes to which a message should be
-delivered as seen by the sender at sending time
+In order to better understand what \textit{virtual synchrony} is, let us introduce some definitions:
+\begin{itemize}
+    \item \textbf{Group view:} set of processes to which a message should be delivered as seen by the sender at sending time
+    \item \textbf{View change}: it happens when a process joins or leaves the group, possibly crashing
+\end{itemize}
 
-\textbf{Def.} It's a form or reliable multicast in which group view
-changes are delivered in a consistent order with respect to other
-multicasts and with respect to each other
+In other words, all multicasts must take place between view changes, so that, a
+multicast make sense when it's received before that the "news" that a process crashed arrive.
 
-\textbf{View change}: it happens when a process joins or leaves the
-group, possibly crashing
-
-All multicast must take place between view changes: in practice a
-multicast make sense when it's received before that the ``news'' that a
-process crashed arrive.
-
+In practice:
 \begin{itemize}
 \itemsep1pt\parskip0pt\parsep0pt
 \item
@@ -295,30 +280,42 @@ process crashed arrive.
   leaving, the message is either delivered to all group members before
   the view change is announced or it's dropped.
 \end{itemize}
+Generally speaking, multicasts take place in epochs separated by group memebership changes.
 
-\subparagraph{Total ordering}\label{total-ordering}
-
-\textbf{Def.} Whatever is the chosen order, messages must be delivered
-to every group member in the same order
-
-\subparagraph{Atomic multicast}\label{atomic-multicast}
-
-\textbf{Def.} A virtual synchronous reliable multicast ordering
-totally-ordered delivery of messages
+Retaining the virtual synchrony property, we can identify different orderings for the multicast messages. In particular we can have:
+\begin{itemize}
+    \item Unordered multicasts
+    \item FIFO-ordered multicasts
+    \item Causally-ordered multicasts
+\end{itemize}
+In addition, the above orderings can be combined with a \textit{total ordering} requirement, so whatever is the chosen order, messages must be delivered to every group member in the same order. Note that, \textit{virtual synchrony} includes this property in its own definition.\\
+Moreover, a virtual synchronous reliable multicast ordering totally-ordered delivery of messages is defined as \textbf{atomic multicast}.
 
 \subparagraph{Implementation}\label{implementation}
+Over the years, several implementations of \textit{virtual synchrony} have been proposed, for example the one implemented in \textit{ISIS}, that is a fault tolerant distributed system.
 
+However, the basic idea is composed by few key points:
+\begin{itemize}
+    \item We assume that processes are notified of view changes
+    \item When a process receives a view change message, stop sending new messages until the new view is installed, instead it multicasts all pending unstable messages to the non faulty members of the old view, marks them as stable and multicasts a flush message
+    \item Eventually, all the non faulty members of the old view will receive the view change and do the same. Obviously, view changes duplicates are discarded.
+    \item Each process installs the new view as soon as it has received a flush message from each other process in the new view.
+\end{itemize}
+After all these points are met, processes can restart sending new messages.\\
+In conclusion, if we assume that the group membership does not change during the execution of the protocol above we have that at the end all non faulty members of the old view receive the same set of messages before installing the new view.
+
+\subparagraph{Example}
 \begin{figure}[htbp]
 \centering
-\includegraphics{C:/Users/Davide/AppData/Roaming/Typora/typora-user-images/image-20200106141206166.png}
-\caption{image-20200106141206166}
+\includegraphics{src/images/fault-tolerance/VS.png}
+\caption{An example of view change}
 \end{figure}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics{C:/Users/Davide/AppData/Roaming/Typora/typora-user-images/image-20200106141431797.png}
-\caption{image-20200106141431797}
-\end{figure}
+\begin{enumerate}
+    \item Process 4 notices that process 7 has crashed and so it sends a view change
+    \item Process 6 sends out all its unstable messages, followed by a flush message
+    \item Process 6 installs the new view when it has received a flush message from everyone else
+\end{enumerate}
 
 \begin{center}\rule{3in}{0.4pt}\end{center}
 

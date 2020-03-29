@@ -320,9 +320,8 @@ In conclusion, if we assume that the group membership does not change during the
 \begin{center}\rule{3in}{0.4pt}\end{center}
 
 \subsection{Distributed commits}\label{distributed-commits}
-
-\textbf{Termination:}
-
+Commit protocols are a very common way to achieve agreement, so that, two processes agree on the same value.\\
+One important thing we have to guarantee in a commit protocol is the \textbf{termination} property. In particular we can have two types of termination:
 \begin{itemize}
 \itemsep1pt\parskip0pt\parsep0pt
 \item
@@ -331,22 +330,11 @@ In conclusion, if we assume that the group membership does not change during the
   \emph{Strong:} all non-faulty processes eventually decide
 \end{itemize}
 
-\subsubsection{Two-phase commit}\label{two-phase-commit}
+\subsubsection{Two-phase commit protocol}\label{two-phase-commit}
+\textit{Two-phase commit protocol} is a blocking protocol, it satisfies the weak condition and it's allow to reach termination in less than \emph{f+1} rounds.
 
-It's a blocking protocol, it satisfies the weak condition and it's allow
-to reach termination in less than \emph{f+1} rounds.
-
-\begin{figure}[htbp]
-\centering
-\includegraphics{C:/Users/Davide/AppData/Roaming/Typora/typora-user-images/image-20200106143546837.png}
-\caption{image-20200106143546837}
-\end{figure}
-
-If a participant fails, after a timeout a coordinator can assume abort
-decision by participant
-
+If a participant fails, after a timeout a coordinator can assume abort decision by participant.\\
 If the coordinator fails:
-
 \begin{itemize}
 \itemsep1pt\parskip0pt\parsep0pt
 \item
@@ -354,20 +342,22 @@ If the coordinator fails:
   abort
 \item
   If participant blocked waiting for global decision, it cannot decide
-  on its own but it mast wait for the coordinator to recover (blocking
-  protocol)
+  on its own but it mast wait for the coordinator to recover \textit{(blocking
+  protocol)}
 \end{itemize}
 
 \subsubsection{Three-phase commit}\label{three-phase-commit}
-
-It's a non-blocking protocol and it satisfies the strong termination
-condition
+\textit{Three-phase commit protocol} is a non-blocking protocol and it satisfies the strong termination condition. Moreover, it attempts to solve the problems of two-phase commit protocol by adding another phase in such a way that no state leads directly to \textit{COMMIT} and \textit{ABORT} and \textit{COMMIT} state cannot be reached if agreement is impossible to achieve.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics{C:/Users/Davide/AppData/Roaming/Typora/typora-user-images/image-20200106144731846.png}
 \caption{image-20200106144731846}
 \end{figure}
+
+Note that, the \textit{READY} state is the crucial one when coordinator abort. In this case others can be in \textit{INIT}, \textit{READY} or \textit{PRECOMMIT}, but no one can be in \textit{COMMIT} and so, in case it's impossible to achieve an agreement I can always \textit{ABORT}.
+
+However, in case of coordinator failure, things are more complex, in the sense that I can have apply different behaviours depending on the situation I have in my system. In particular, we can have these cases:
 
 \begin{figure}[htbp]
 \centering

@@ -349,28 +349,30 @@ If the coordinator fails:
 \subsubsection{Three-phase commit}\label{three-phase-commit}
 \textit{Three-phase commit protocol} is a non-blocking protocol and it satisfies the strong termination condition. Moreover, it attempts to solve the problems of two-phase commit protocol by adding another phase in such a way that no state leads directly to \textit{COMMIT} and \textit{ABORT} and \textit{COMMIT} state cannot be reached if agreement is impossible to achieve.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics{C:/Users/Davide/AppData/Roaming/Typora/typora-user-images/image-20200106144731846.png}
-\caption{image-20200106144731846}
-\end{figure}
-
-Note that, the \textit{READY} state is the crucial one when coordinator abort. In this case others can be in \textit{INIT}, \textit{READY} or \textit{PRECOMMIT}, but no one can be in \textit{COMMIT} and so, in case it's impossible to achieve an agreement I can always \textit{ABORT}.
+Note that, the \textit{READY} state is the crucial one when coordinator abort. In this case others can be in \textit{INIT}, \textit{READY} or \textit{PRECOMMIT}, but no one can be in \textit{COMMIT} and so, in case it's impossible to achieve an agreement, I can always \textit{ABORT}.
 
 However, in case of coordinator failure, things are more complex, in the sense that I can have apply different behaviours depending on the situation I have in my system. In particular, we can have these cases:
 
-\begin{figure}[htbp]
-\centering
-\includegraphics{C:/Users/Davide/AppData/Roaming/Typora/typora-user-images/image-20200106144855466.png}
-\caption{image-20200106144855466}
-\end{figure}
+\begin{itemize}
+    \item If we have a participant blocked waiting for vote request, it can decide to \textit{ABORT}
+    \item If we have a participant blocked waiting for global decision, it contacts other participant and then decide what to do:
+        \begin{itemize}
+            \item At least one in \textit{ABORT} state: \textit{ABORT}
+            \item At least one in \textit{COMMIT} state: \textit{COMMIT}
+            \item At least one in \textit{INIT} state: \textit{ABORT}
+            \item Majority in \textit{PRECOMMIT} state: \textit{COMMIT}
+            \item Majority in \textit{READY} state: \textit{ABORT}
+        \end{itemize}
+        
+        Note that, no two participants can be in \textit{PRECOMMIT} and the other in \textit{INIT} state. Moreover, in alternative, it's possible to elect a new coordinator.
+\end{itemize}
 
 \begin{center}\rule{3in}{0.4pt}\end{center}
 
 \subsection{Recovery techniques}\label{recovery-techniques}
 
 When processes resume working after a failure, they have to be taken
-back to a correct state
+back to a correct state.
 
 There are two types of recovery:
 
@@ -383,9 +385,8 @@ There are two types of recovery:
   The system is brought into a new correct state from which execution
   can be resumed (\emph{forward})
 \end{itemize}
-
 Recovery a previous state is possible only if there is a checkpoint or a
-logging system
+logging system.
 
 \subsubsection{Checkpointing}\label{checkpointing}
 
@@ -394,9 +395,9 @@ going back until we find a couple of checkpoints which give us a
 consistent checkpoint, in some kind of domino effect.
 
 One idea is to have an \textbf{independent checkpointing}, where every
-process records is own state. However, independent checkpoint is not
+process records its own state. However, independent checkpoint is not
 trivial to implement, because interval between two checkpoints is tagged
-and each message exchanged by the processes must be record a reference
+and each message exchanged by the processes must be recorded as a reference
 to the interval. It's important to notice that in this way the receiver
 can record the dependency between receiving and sending intervals with
 the rest of the recovery information.
@@ -407,31 +408,15 @@ stop and send their information to the recovering process, that computes
 the recovery line and sends the corresponding rollback request.
 
 The recovery line can be computed using two different techniques, both
-ending to the same result.
+ending to the same result:
 
 \begin{itemize}
 \itemsep1pt\parskip0pt\parsep0pt
 \item
-  \textbf{Rollback-dependency graph}
+  \textbf{Rollback-dependency graph}: the main idea of this technique is to propagate the crash backward. In this method we replace dependencies between messages with dependencies with checkpoints. One computed these dependencies, we start from the crash events and go back through the dependencies, represented by directed arrows, and we invalidate checkpoints that has some kind of dependency with some \textit{"no more valid"} checkpoint. When we cannot invalidate any other checkpoints we obtain the solution represented by the right-most valid checkpoint available for each process. 
+  \item
+    \textbf{Checkpoint-dependency graph}: in this method we replace dependencies between intervals with dependencies between checkpoints.
 \end{itemize}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics{C:/Users/Davide/AppData/Roaming/Typora/typora-user-images/image-20200106150637533.png}
-\caption{image-20200106150637533}
-\end{figure}
-
-\begin{itemize}
-\itemsep1pt\parskip0pt\parsep0pt
-\item
-  \textbf{Checkpoint-dependency graph}
-\end{itemize}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics{C:/Users/Davide/AppData/Roaming/Typora/typora-user-images/image-20200106150703542.png}
-\caption{image-20200106150703542}
-\end{figure}
 
 Another idea is to have a \textbf{coordinated checkpointing}, since the
 previous algorithm is not convenient, looking at its complexity.
